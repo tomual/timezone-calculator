@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as moment from 'moment/moment';
 
 export interface NameFormProps { }
 export interface NameFormState { value: string; }
@@ -8,27 +9,38 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
         super(props);
         this.state = { value: '' };
 
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.updateName = this.updateName.bind(this);
+        this.updateZone = this.updateZone.bind(this);
+        this.init();
     }
 
-    handleChange(event: any) {
+    init() {
+        var jun = moment("2014-06-01T12:00:00Z");
+        this.setState({ value: jun.format("j M, Y") });
+    }
+
+    updateName(event: any) {
         this.setState({ value: event.target.value });
+        this.setState({ value: this.state.value.toUpperCase() });
     }
 
-    handleSubmit(event: any) {
-        this.setState({ value: this.state.value.toUpperCase() });
-        // alert('A name was submitted: ' + this.state.value);
+    updateZone(event: any) {
         event.preventDefault();
     }
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
+            <form>
                 <label>
                     Name:
-                    <input type="text" value={this.state.value} onChange={this.handleChange} />
+                    <input type="text" value={this.state.value} onChange={this.updateName} />
                 </label>
+                <select value={this.state.value} onChange={this.updateZone}>
+                    <option value="grapefruit">Grapefruit</option>
+                    <option value="lime">Lime</option>
+                    <option value="coconut">Coconut</option>
+                    <option value="mango">Mango</option>
+                </select>
                 <input type="submit" value="Submit" />
             </form>
         );

@@ -6,7 +6,10 @@ module.exports = {
 
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: [".ts", ".tsx"]
+        extensions: [".ts", ".tsx"],
+        alias: {
+            'moment$': 'moment/moment',
+        },
     },
 
     module: {
