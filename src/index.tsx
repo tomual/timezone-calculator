@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Hello } from "./components/Hello";
+import { NameForm } from "./components/NameForm";
 
 ReactDOM.render(
-    <Hello compiler="TypeScript" framework="React" />,
+    <NameForm />,
     document.getElementById("example")
 );
