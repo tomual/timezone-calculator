@@ -1,17 +1,22 @@
 import * as React from "react";
 import moment from 'moment';
 import 'moment-timezone'; 
+import DatePicker  from 'react-datepicker';
 
-export interface NameFormProps { }
-export interface NameFormState { value: string; }
+export interface NameFormProps {}
+export interface NameFormState { value: string; zones: string[]; }
 
 export class NameForm extends React.Component<NameFormProps, NameFormState> {
     constructor(props: NameFormProps) {
         super(props);
-        this.state = { value: '' };
+        this.state = { 
+            value: '',
+            zones: this.getZones()
+        };
 
         this.updateName = this.updateName.bind(this);
         this.updateZone = this.updateZone.bind(this);
+        this.setStartDate = this.setStartDate.bind(this);
     }
 
     componentDidMount() {
@@ -24,17 +29,6 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
 
         console.log(jun.tz('America/Los_Angeles').format('ha z'));
         console.log(dec.tz('America/Los_Angeles').format('ha z'));
-        jun.tz('America/Los_Angeles').format('ha z');  // 5am PDT
-        dec.tz('America/Los_Angeles').format('ha z');  // 4am PST
-
-        jun.tz('America/New_York').format('ha z');     // 8am EDT
-        dec.tz('America/New_York').format('ha z');     // 7am EST
-
-        jun.tz('Asia/Tokyo').format('ha z');           // 9pm JST
-        dec.tz('Asia/Tokyo').format('ha z');           // 9pm JST
-
-        jun.tz('Australia/Sydney').format('ha z');     // 10pm EST
-        dec.tz('Australia/Sydney').format('ha z');     // 11pm EST
     }
 
     updateName(event: any) {
@@ -47,7 +41,16 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
         event.preventDefault();
     }
 
+    getZones() {
+        return moment.tz.names();
+    }
+
+    setStartDate(date: Date | null) {
+        console.log(date);
+    }
+
     render() {
+        const startDate = new Date();
         return (
             <form>
                 <label>
@@ -55,12 +58,19 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
                     <input type="text" value={this.state.value} onChange={this.updateName} />
                 </label>
                 <select value={this.state.value} onChange={this.updateZone}>
-                    <option value="grapefruit">Grapefruit</option>
-                    <option value="lime">Lime</option>
-                    <option value="coconut">Coconut</option>
-                    <option value="mango">Mango</option>
+                    {this.state.zones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
                 </select>
                 <input type="submit" value="Submit" />
+                <DatePicker selected={startDate} onChange={date => this.setStartDate(date)} />
+                <DatePicker
+                    selected={startDate}
+                    onChange={date => this.setStartDate(date)}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeIntervals={15}
+                    timeCaption="Time"
+                    dateFormat="h:mm aa"
+                />
             </form>
         );
     }
