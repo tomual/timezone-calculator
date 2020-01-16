@@ -9,7 +9,8 @@ export interface NameFormState {
     zones: string[]; 
     answer: string, 
     date: string, 
-    time: string 
+    time: string,
+    startDate: Date | null
 }
 
 export class NameForm extends React.Component<NameFormProps, NameFormState> {
@@ -21,6 +22,7 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
             answer: "",
             date: "",
             time: "",
+            startDate: new Date()
         };
 
         this.updateName = this.updateName.bind(this);
@@ -47,6 +49,7 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
         console.log("updateDate");
         let m = moment(date?.toISOString());
         this.setState({ date: m.format("YYYY-MM-DD") });
+        this.setState({ startDate: date });
         this.updateAnswer();
     }
 
@@ -54,6 +57,7 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
         console.log("updateTime");
         let m = moment(date?.toISOString());
         this.setState({ time: m.format("h:mm") });
+        this.setState({ startDate: date });
         this.updateAnswer();
     }
 
@@ -70,16 +74,15 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
     }
 
     render() {
-        const startDate = new Date();
         return (
             <form>
                 <select value={this.state.zone} onChange={this.updateZone}>
                     {this.state.zones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
                 </select>
                 <input type="submit" value="Submit" />
-                <DatePicker selected={startDate} onChange={date => this.updateDate(date)} />
+                <DatePicker selected={this.state.startDate} onChange={date => this.updateDate(date)} />
                 <DatePicker
-                    selected={startDate}
+                    selected={this.state.startDate}
                     onChange={date => this.updateTime(date)}
                     showTimeSelect
                     showTimeSelectOnly
