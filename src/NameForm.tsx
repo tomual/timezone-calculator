@@ -2,7 +2,8 @@ import * as React from "react";
 import moment from 'moment';
 import 'moment-timezone';
 import DatePicker from 'react-datepicker';
-import { Card, Button, Form } from "tabler-react";
+import { Card, Form } from "tabler-react";
+
 
 export interface NameFormProps { }
 export interface NameFormState {
@@ -12,7 +13,7 @@ export interface NameFormState {
     startDate: string,
     startTime: string,
     targetZone: string;
-    answer: string,
+    targetMoment: moment.Moment;
 }
 
 export class NameForm extends React.Component<NameFormProps, NameFormState> {
@@ -25,7 +26,7 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
             startDate: moment().format("YYYY-MM-DD"),
             startTime: moment().format("h:mm"),
             targetZone: 'UTC',
-            answer: "",
+            targetMoment: moment(),
         };
 
         this.updateName = this.updateName.bind(this);
@@ -38,21 +39,28 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
         this.updateAnswer();
     }
 
+    componentDidUpdate() {
+        this.writeAnswer();
+    }
+
     updateName(event: any) {
         this.setState({ startZone: event.target.value });
     }
 
     updateStartZone(event: any) {
+        console.log("updateStartZone");
         this.setState({ startZone: event.target.value });
         this.updateAnswer();
     }
 
     updateTargetZone(event: any) {
+        console.log("updateTargetZone");
         this.setState({ targetZone: event.target.value });
         this.updateAnswer();
     }
 
     updateStartDate(date: Date | null) {
+        console.log("updateStartDate");
         let m = moment(date?.toISOString());
         this.setState({ startDate: m.format("YYYY-MM-DD") });
         this.setState({ inputDate: date });
@@ -69,8 +77,18 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
 
     updateAnswer() {
         let timezone = moment.tz(this.state.startDate + " " + this.state.startTime, this.state.startZone);
-        this.setState({ answer: timezone.tz(this.state.targetZone).format('DD MMMM, YYYY h:mm a') });
+        this.setState({ targetMoment: timezone.tz(this.state.targetZone) });
+    }
 
+    writeAnswer() {
+        console.log("writeAnswer");
+        return (
+            <div>
+                {this.state.targetMoment.format("DD MM YYYY")}
+                <hr/>
+                {this.state.targetMoment.format("hh:mm a")}
+            </div>
+        )
     }
 
     getZones() {
@@ -80,51 +98,67 @@ export class NameForm extends React.Component<NameFormProps, NameFormState> {
     render() {
         return (
             <div className="container">
-                <Card className="p-5">
-                    <Form.Group label="Timezone">
-                        <select
-                            value={this.state.startZone}
-                            onChange={this.updateStartZone}
-                            className="form-control">
-                            {this.state.zones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
-                        </select>
-                    </Form.Group>
+                <div className="row">
+                    <div className="col-lg-6 offset-lg-3">
+                        <div className="page-header">
+                            <h1 className="page-title my-5">
+                                Timezone Time Converter
+                            </h1>
+                        </div>
+                        <Card className="p-5">
+                            <div className="row">
+                                <Form.Group label="Time" className="col-lg-6">
+                                    <DatePicker
+                                        selected={this.state.inputDate}
+                                        onChange={date => this.updateStartTime(date)}
+                                        showTimeSelect
+                                        showTimeSelectOnly
+                                        timeIntervals={15}
+                                        timeCaption="Time"
+                                        dateFormat="h:mm aa"
+                                        className="form-control"
+                                    />
+                                </Form.Group>
 
-                    <Form.Group label="Date">
-                        <DatePicker selected={this.state.inputDate}
-                            onChange={date => this.updateStartDate(date)}
-                            className="form-control"
-                        />
-                    </Form.Group>
+                                <Form.Group label="Date" className="col-lg-6">
+                                    <DatePicker selected={this.state.inputDate}
+                                        onChange={date => this.updateStartDate(date)}
+                                        className="form-control"
+                                    />
+                                </Form.Group>
+                                <Form.Group label="Timezone" className="col-12">
+                                    <select
+                                        value={this.state.startZone}
+                                        onChange={this.updateStartZone}
+                                    >
+                                        {this.state.zones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
+                                    </select>
+                                </Form.Group>
 
-                    <Form.Group label="Time">
-                        <DatePicker
-                            selected={this.state.inputDate}
-                            onChange={date => this.updateStartTime(date)}
-                            showTimeSelect
-                            showTimeSelectOnly
-                            timeIntervals={15}
-                            timeCaption="Time"
-                            dateFormat="h:mm aa"
-                            className="form-control"
-                        />
-                    </Form.Group>
+                                <div className="col-12">
+                                <hr />
+                                </div>
 
-                    <Form.Group label="Target Timezone">
-                        <select
-                            value={this.state.targetZone}
-                            onChange={this.updateTargetZone}
-                            className="form-control">
-                            {this.state.zones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
-                        </select>
-                    </Form.Group>
+                                <Form.Group label="Target Timezone" className="col-12">
+                                    <select
+                                        value={this.state.targetZone}
+                                        onChange={this.updateTargetZone}
+                                    >
+                                        {this.state.zones.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
+                                    </select>
+                                </Form.Group>
 
-                    <Form.Group label="Converted Time">
-                        <Form.StaticText>
-                            {this.state.answer}
-                        </Form.StaticText>
-                    </Form.Group>
-                </Card>
+                                <Form.Group label="Converted Time" className="col-12">
+                                    <Form.StaticText>
+                                        {this.writeAnswer()}
+                                    </Form.StaticText>
+                                </Form.Group>
+
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+
             </div>
         );
     }
